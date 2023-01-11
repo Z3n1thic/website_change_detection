@@ -1,5 +1,6 @@
 # website_change_detection
-Periodically checks if a websites content changed. Then sends post request to a discord webhook endpoint.
+Checks if a websites content changed. Then sends post request to a discord webhook endpoint.
+Can be executed periodically using cronjob.
 
 ## Usage
 1. Create a discord webhook
