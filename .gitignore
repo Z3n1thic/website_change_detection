@@ -1,5 +1,4 @@
-comp/
-*.comp
+checks.json
 monitor.json
 # Byte-compiled / optimized / DLL files
 __pycache__/
