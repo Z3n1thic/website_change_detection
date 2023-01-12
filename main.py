@@ -5,28 +5,35 @@ import requests
 import json
 import os
 import dotenv
+import xxhash
 
 real_path = os.path.realpath(os.path.dirname(__file__))
 webhook_url = dotenv.get_key(real_path+'/.env', 'WEBHOOK_URL')
 if webhook_url == None:
     exit()
 
-def get_comp(url, html_class="", html_tag="div"):
+def remove_excessive_newlines(text):
+    return re.sub(r'\n{2,}', "\n", text).replace("\r", "") # remove excessive newlines and carriage returns
+
+def get_comp(url, html_class="", html_tag="div", html_id=""):
     page = urlopen(url)
     html = page.read().decode('utf-8')
     soup = BeautifulSoup(html, "html.parser")
-    if html_class == None or html_class.split() == "":
-        return re.sub(r'\n{2,}', "\n", soup.find(html_tag).get_text())
+    args = {}
+    if (html_class != None and html_class.strip() != ""):
+        args['class_'] = html_class
+    if (html_id != None and html_id.strip() != ""):
+        args['id'] = html_id
+        
+    return remove_excessive_newlines(soup.find(html_tag, **args).get_text())
 
-    return re.sub(r'\n{2,}', "\n", soup.find(html_tag, class_=html_class).get_text())
-
-def compare_and_notify(url, html_class, html_tag, name):
+def compare_and_notify(url, html_class, html_tag, name, html_id):
     comp_file_name = real_path+"/comp/"+name+".comp"
     try:
         with open(comp_file_name, 'r') as comp:
-            out = get_comp(url=url, html_class=html_class, html_tag=html_tag)
-
-            if out != comp.read():
+            out = get_comp(url=url, html_class=html_class, html_tag=html_tag, html_id=html_id)
+            compare_text = comp.read()
+            if xxhash.xxh32(out.strip()).hexdigest() != xxhash.xxh32(compare_text.strip()).hexdigest():
                 print('new event')
                 comp.close()
                 with open(comp_file_name, 'w') as comp:
@@ -48,4 +55,4 @@ if __name__ == '__main__':
         monitorlist = json.load(f)
 
         for monitor in monitorlist:
-            compare_and_notify(url=monitor['url'], html_class=monitor['html_class'], html_tag=monitor['html_tag'], name=monitor['name'])
+            compare_and_notify(url=monitor['url'], html_class=monitor['html_class'], html_tag=monitor['html_tag'], name=monitor['name'], html_id=monitor['html_id'])
