@@ -46,12 +46,11 @@ def compare_and_notify(url, html_class, html_tag, name, html_id, checks):
             },
         )
         checks[name]["hash"] = newhash
+        checks[name]["lastupdated"] = datetime.datetime.now().isoformat()
         with open(
             "checks.json", "w"
         ) as f:  # This not ideal because it results in a lot of disk writes
             json.dump(checks, f)
-    else:
-        print(name + " is up to date")
 
 
 if __name__ == "__main__":
