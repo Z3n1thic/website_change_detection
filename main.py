@@ -6,7 +6,8 @@ import json
 import os
 import dotenv
 
-webhook_url = dotenv.get_key('.env', 'WEBHOOK_URL')
+real_path = os.path.realpath(os.path.dirname(__file__))
+webhook_url = dotenv.get_key(real_path+'/.env', 'WEBHOOK_URL')
 if webhook_url == None:
     exit()
 
@@ -17,7 +18,7 @@ def get_comp(url, html_class, html_tag="div"):
     return re.sub(r'\n{2,}', "\n", soup.find(html_tag, class_=html_class).get_text())
 
 def compare_and_notify(url, html_class, html_tag, name):
-    comp_file_name = "comp/"+name+".comp"
+    comp_file_name = real_path+"/comp/"+name+".comp"
     try:
         with open(comp_file_name, 'r') as comp:
             out = get_comp(url=url, html_class=html_class, html_tag=html_tag)
@@ -35,12 +36,12 @@ def compare_and_notify(url, html_class, html_tag, name):
             with open(comp_file_name, 'w') as comp:
                 comp.write(out)
         except IOError as e:
-            os.mkdir("comp")
+            os.mkdir(real_path+"/comp/")
             with open(comp_file_name, 'w') as comp:
                 comp.write(out)
 
 if __name__ == '__main__':
-    with open('monitor.json') as f:
+    with open(real_path+'/monitor.json') as f:
         monitorlist = json.load(f)
 
         for monitor in monitorlist:
