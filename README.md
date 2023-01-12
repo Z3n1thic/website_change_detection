@@ -20,18 +20,21 @@ monitor.json file:
         "name": "Eschenlaube",
         "url": "https://eschenlaube.at/veranstaltungen",
         "html_class": "et_pb_row et_pb_row_1",
-        "html_tag": "div"    
+        "html_tag": "div",
+        "html_id": ""
     },
     {
         "name": "Miles Jazz",
         "url": "https://www.milesjazz.at/",
         "html_class": "css-events-list",
-        "html_tag": "div" 
+        "html_tag": "div",
+        "html_id": ""
     }
 ]
 ```
 
 ## Run
 ```sh
+pip3 install -r requirements.txt
 python3 main.py
 ```
