@@ -11,10 +11,13 @@ webhook_url = dotenv.get_key(real_path+'/.env', 'WEBHOOK_URL')
 if webhook_url == None:
     exit()
 
-def get_comp(url, html_class, html_tag="div"):
+def get_comp(url, html_class="", html_tag="div"):
     page = urlopen(url)
     html = page.read().decode('utf-8')
     soup = BeautifulSoup(html, "html.parser")
+    if html_class == None or html_class.split() == "":
+        return re.sub(r'\n{2,}', "\n", soup.find(html_tag).get_text())
+
     return re.sub(r'\n{2,}', "\n", soup.find(html_tag, class_=html_class).get_text())
 
 def compare_and_notify(url, html_class, html_tag, name):
