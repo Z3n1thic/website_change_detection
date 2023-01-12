@@ -29,26 +29,25 @@ def get_comp(url, html_class="", html_tag="div", html_id=""):
 
 def compare_and_notify(url, html_class, html_tag, name, html_id):
     comp_file_name = real_path+"/comp/"+name+".comp"
+    hash = xxhash.xxh3_128(get_comp(url=url, html_class=html_class, html_tag=html_tag, html_id=html_id)).hexdigest()
     try:
         with open(comp_file_name, 'r') as comp:
-            out = get_comp(url=url, html_class=html_class, html_tag=html_tag, html_id=html_id)
-            compare_text = comp.read()
-            if xxhash.xxh32(out.strip()).hexdigest() != xxhash.xxh32(compare_text.strip()).hexdigest():
+            compare_hash = comp.read()
+            if hash != compare_hash.strip():
                 print('new event')
                 comp.close()
                 with open(comp_file_name, 'w') as comp:
-                    comp.write(out)
+                    comp.write(hash)
                     requests.post(webhook_url, json={"content": f"Hey, there could be a new event at {url} ! Have a look!"})
 
     except IOError as e:
-        out = get_comp(url=url, html_class=html_class, html_tag=html_tag)
         try:
             with open(comp_file_name, 'w') as comp:
-                comp.write(out)
+                comp.write(hash)
         except IOError as e:
             os.mkdir(real_path+"/comp/")
             with open(comp_file_name, 'w') as comp:
-                comp.write(out)
+                comp.write(hash)
 
 if __name__ == '__main__':
     with open(real_path+'/monitor.json') as f:
