@@ -9,11 +9,16 @@ import hashlib
 import datetime
 
 
-real_path = os.path.realpath(os.path.dirname(__file__))
-webhook_url = dotenv.get_key(real_path + "/.env", "WEBHOOK_URL")
+REAL_PATH = os.path.realpath(os.path.dirname(__file__))
+CHECKS_PATH = REAL_PATH + "/checks.json"
+MONITOR_PATH = REAL_PATH + "/monitor.json"
+ENV_PATH = REAL_PATH + "/.env"
+
+webhook_url = dotenv.get_key(ENV_PATH, "WEBHOOK_URL")
 if webhook_url == None:
     exit()
 
+debug = False if dotenv.get_key(ENV_PATH, "DEBUG") == None else dotenv.get_key(ENV_PATH, "DEBUG")
 
 def remove_excessive_newlines(text):
     return re.sub(r"\n{2,}", "\n", text).replace(
@@ -53,16 +58,16 @@ def compare_and_notify(url, html_class, html_tag, name, html_id, checks):
     write_checks(checks)
 
 def write_checks(checks):
-    with open("checks.json", "w") as f:
+    with open(CHECKS_PATH, "w") as f:
         json.dump(checks, f, indent=4)
 
 
 if __name__ == "__main__":
-    with open(real_path + "/monitor.json") as f:
+    with open(MONITOR_PATH) as f:
         monitorlist = json.load(f)
     try:
         # Handle if checks.json exists or not
-        with open("checks.json", "r") as f:
+        with open(CHECKS_PATH, "r") as f:
             checks = json.load(f)
     except FileNotFoundError:
         # Initialize checks.json and exit
